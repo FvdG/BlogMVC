@@ -33,27 +33,27 @@ App_Start->RouteConfig.cs
 //    defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }       
 //);    
 
-Navigate to : http://localhost:[someport]/Account/Register
-Add username an password and confirm pasword
-The redirect will fail but that's oke, you now have a user.
-Now comment the section again ( App_Start->RouteConfig.cs ) else the pages will fail to load.
-
-- Adding some data to play with :)
-First restart you VisualStudio 2012, for reasons unknown data migrations won't always work.
-Uncomment line :
-
-Migrations->Configuration.cs
-
-protected override void Seed(BlogContext context)
-{
-  //  This method will be called after migrating to the latest version.
-	//context.Seed();
-}
-
-And comment the following line (else you will have duplicate data) :
-
-Project Blog.Data BlogContext.cs
-
+Navigate to : http://localhost:[someport]/Account/Register	
+Add username an password and confirm pasword	
+The redirect will fail but that's oke, you now have a user.	
+Now comment the section again ( App_Start->RouteConfig.cs ) else the pages will fail to load.	
+	
+- Adding some data to play with :)	
+First restart you VisualStudio 2012, for reasons unknown data migrations won't always work.	
+Uncomment line :	
+	
+Migrations->Configuration.cs	
+	
+protected override void Seed(BlogContext context)	
+{	
+  //  This method will be called after migrating to the latest version.	
+	//context.Seed();	
+}	
+	
+And comment the following line (else you will have duplicate data) :	
+	
+Project Blog.Data BlogContext.cs	
+	
 protected override void OnModelCreating(DbModelBuilder modelBuilder)
 {
 	// Use singular table names
