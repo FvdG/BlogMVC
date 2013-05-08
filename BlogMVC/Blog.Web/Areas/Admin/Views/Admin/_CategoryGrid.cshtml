@@ -1,0 +1,115 @@
+﻿<div id="categoryGrid"></div>
+
+<script>
+    $(function () {
+        
+        function refreshCategoryGrid() {
+            $("#categoryGrid").data("kendoGrid").dataSource.read();
+        }
+
+        $("#categoryGrid").kendoGrid({
+            height: 430,
+            columns: [
+                { field: "Name", title: "Name", width: 100 },
+                { field: "UrlSlug", title: "UrlSlug", width: 100 },
+                { field: "Description", title: "Description", width: 100 },
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "40px" }
+            ],
+            editable: {
+                mode: "popup"
+            },
+            pageable: true,
+            sortable: true,
+            filterable: true,
+            toolbar: ["create"/*, "save", "cancel"*/], // specify toolbar commands
+            dataSource: {
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true,
+                pageSize: 10,
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    model: { // define the model of the data source. Required for validation and property types.
+                        id: "CategoryId",
+                        fields: {
+                            CategoryId: { editable: false, nullable: true, visible: false },
+                            Name: { type: "string", validation: { required: true } },
+                            Description: { type: "string", validation: { required: true } },
+                            UrlSlug: { validation: { type: "string", required: true, visible: false } }
+                        }
+                    }
+                },
+                batch: true, // enable batch editing - changes will be saved when the user clicks the "Save changes" button
+                transport: {
+                    create: {
+                        url: "@Url.Action("CreateCategory", "Admin")", //specify the URL which should create new records. This is the Create method of the HomeController.
+                        type: "POST", //use HTTP POST request as the default GET is not allowed for ASMX
+                        complete: function (jqXhr, textStatus) {
+                            if (textStatus == 'success') {
+                                refreshCategoryGrid();
+                                toastr.success('Succes', 'Succesfully created Category');
+                                
+                            }
+                        }
+                    },
+                    read: {
+                        url: "@Url.Action("ReadCategories", "Admin")", //specify the URL which should return the records. This is the Read method of the HomeController.
+                        contentType: "application/json",
+                        type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC
+                        complete: function (jqXhr, textStatus) {
+                            if (textStatus == 'success') {
+                                toastr.success('Succes', 'Succesfully retrieved all Categories');
+                            }
+                        }
+                    },
+                    update: {
+                        url: "@Url.Action("UpdateCategory", "Admin")", //specify the URL which should update the records. This is the Update method of the HomeController.
+                        type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC
+                        complete: function (jqXhr, textStatus) {
+                            if (textStatus == 'success') {
+                                refreshCategoryGrid();
+                                toastr.success('Succes', 'Succesfully updated Category');
+                            }
+                        }
+                    },
+                    destroy: {
+                        url: "@Url.Action("DeleteCategory", "Admin")", //specify the URL which should destroy the records. This is the Destroy method of the HomeController.
+                        type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC
+                        complete: function (jqXhr, textStatus) {
+                            if (textStatus == 'success') {
+                                refreshCategoryGrid();
+                                toastr.success('Succes', 'Succesfully deleted Category');
+                            }
+                        }
+                    },
+                    parameterMap: function (data, operation) {
+
+                        if (operation != "read") {
+                            // post the categories so the ASP.NET DefaultModelBinder will understand them:
+                            var result = {};
+                            for (var i = 0; i < data.models.length; i++) {
+                                var category = data.models[i];
+                                for (var member in category) {
+                                    result["categories[" + i + "]." + member] = category[member];
+                                }
+                            }
+                            return result;
+                        }
+                        else {
+                            return JSON.stringify(data);
+                        }
+                    }
+                },
+                change: function (data) {
+                    //toastr.success('Succes', 'Categories data succesfully retrieved');
+                },
+                error: function (xhr, error) {
+                    console.log(error);
+                    console.log(xhr);
+                    toastr.error('Error', error);
+                }
+        }
+    });
+});
+</script>

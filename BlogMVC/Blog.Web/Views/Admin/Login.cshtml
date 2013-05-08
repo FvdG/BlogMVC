@@ -1,0 +1,93 @@
+﻿@model Blog.Web.Models.LoginModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width" />
+    <title>Login</title>
+        <link rel="icon" type="image/png" href="~/Images/favicon.png" />
+    <!--[if IE]>
+        <link rel="shortcut icon" href="~/Images/favicon.ico" type="image/vnd.microsoft.icon" />
+    <![endif]-->
+    <link href="@Url.Content("~/Content/themes/simple/admin.css")" rel="stylesheet" />
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.2.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.10.0/jquery.validate.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/mvc/3.0/jquery.validate.unobtrusive.min.js"></script>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    </head>
+<body>
+        <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container-fluid">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+                <a class="brand" href="#">Blog Admin</a>
+                <div class="nav-collapse collapse">
+                    <p class="navbar-text pull-right">
+                        @Html.ActionLink("logout", "Logout")
+                    </p>
+@*                    <ul class="nav">
+                        <li class="active"><a href="#">Home</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>*@
+                </div><!--/.nav-collapse -->
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid" style="padding-top: 40px;">
+        
+<section id="loginForm">
+    <div id="example" class="modal fade in">
+    <div class="modal-header">
+        <h3>Login</h3>
+    </div>
+    <div class="modal-body">
+    @using (Html.BeginForm("Login", "Admin", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post,
+        new { @class = "form-horizontal" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        <div class="control-group">
+            @Html.LabelFor(m => m.UserName,null,new { @class = "control-label" })
+            <div class="controls">
+                @Html.TextBoxFor(m => m.UserName)
+                @Html.ValidationMessageFor(m => m.UserName)
+            </div>
+        </div>
+        <div class="control-group">
+            @Html.LabelFor(m => m.Password,null,new { @class = "control-label" })
+            <div class="controls">
+                @Html.PasswordFor(m => m.Password)
+                @Html.ValidationMessageFor(m => m.Password)
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" value="Log in" class="btn btn-primary">Log in</button>
+                <label class="checkbox">
+                    @Html.CheckBoxFor(m => m.RememberMe) Remember me
+                </label>
+              
+@*                <label>
+                    @Html.ActionLink("Register", "Register") if you don't have an account.
+                </label>*@
+            </div>
+         </div>
+    }
+    </div>
+    <div class="modal-footer">
+    </div>
+</div>
+</section>
+    </div>
+</body>
+</html>

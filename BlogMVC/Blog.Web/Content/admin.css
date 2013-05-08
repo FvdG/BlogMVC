@@ -1,0 +1,57 @@
+﻿.popupEditTable td, th
+{
+    padding: 5px;
+}
+
+    /*Style build-in commands*/
+    .abutton,
+    div.k-grid .k-grid-edit,
+    div.k-grid .k-grid-delete,
+    div.k-grid .k-grid-cancel,
+    div.k-grid .k-grid-update  {
+        display:inline-block;
+        width:16px;
+        height:16px;
+        text-align:center;
+        text-indent:-444px;
+        min-width:0;
+        border:0;
+    }
+
+    div.k-grid .k-grid-edit {
+        background: url('/Content/icons/edit.png');
+    }
+
+    div.k-grid .k-grid-delete {
+        background: url('/Content/icons/cancel.png');
+    }
+
+    div.k-grid .k-grid-cancel {
+        background: url('/Content/icons/cancel.png');
+    }
+
+    div.k-grid .k-grid-update {
+        background: url('/Content/icons/ok.png');
+    }
+
+
+    /*Style custom buttons*/
+    .abutton.delete {
+        background: url('/Content/icons/cancel.png');
+    }
+
+    .abutton.edit {
+       background: url('/Content/icons/edit.png');
+    }
+
+    .abutton.update {
+        background: url('/Content/icons/ok.png');
+    }
+
+    .abutton.cancel {
+        background: url('/Content/icons/cancel.png');
+    }
+
+    .abutton.create {
+        background: url('/Content/icons/add.png');
+    }

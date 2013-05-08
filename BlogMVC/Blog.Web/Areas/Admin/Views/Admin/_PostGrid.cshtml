@@ -1,0 +1,234 @@
+﻿<div id="postGrid"></div>
+
+<script id="edit-template" type="text/x-kendo-tmpl">
+<table class="popupEditTable">
+    <tr>
+        <td class="firstColumn"><label>Title :</label></td>
+        <td><input type="text" class="k-input k-textbox" name="Title" data-bind="value:Title"></td>
+    </tr>
+    <tr>
+        <td><label>ShortDesc. :</label></td>
+        <td><textarea id="shortDescriptionEditor" rows="10" cols="20" style="width:600px;height:200px" data-bind="value:ShortDescription"></textarea></td>
+    </tr>
+        <tr>
+        <td><label>Description :</label></td>
+        <td><textarea id="descriptionEditor" rows="10" cols="30" style="width:600px;height:340px" data-bind="value:Description"></textarea></td>
+    </tr>
+    </tr>
+        <tr>
+        <td><label>Category :</label></td>
+        <td><input id="Category" required data-bind="value:CategoryId" data-text-field="Name" data-value-field="CategoryId" /></td>
+    </tr>
+        </tr>
+        <tr>
+        <td><label>Tags :</label></td>
+        <td><select id="multiselect">
+            <option>Item 1</option>
+            <option>Item 2</option>
+            <option>Item 3</option>
+        </select></td>
+    </tr>
+    <tr>
+        <td><label>Meta :</label></td>
+        <td><input type="text" class="k-input k-textbox" name="Meta" data-bind="value:Meta"></td>
+    </tr>
+        <tr>
+        <td><label>UrlSlug :</label></td>
+        <td><input type="text" class="k-input k-textbox" name="UrlSlug" data-bind="value:UrlSlug"></td>
+    </tr>
+    <tr>
+        <td><label>Published :</label></td>
+        <td><input name='Published' type="checkbox" data-bind="value:Published" /></td>
+    </tr>
+    <tr></tr>
+</table>
+</script>
+
+<script>
+    $(function () {
+        function refreshPostGrid() {
+            $("#postGrid").data("kendoGrid").dataSource.read();
+        }
+
+        $("#postGrid").kendoGrid({
+            height: 430,
+            columns: [
+                { field: "Title", title: "ShortDescription", width: 100 },
+                { field: "ShortDescription", title: "ShortDescription", width: 100, template: '${ShortDescription.toString().substring(0,50) + "..."}' },
+                { field: "Description", title: "Description", width: 100, template: '${Description.toString().substring(0,50) + "..."}' },
+                { field: "CategoryName", title: "Category", width: 100 },
+                { field: "Published", title: "Live", width: 30, template: '<input type="checkbox" #= Published ? "checked=checked" : "" # disabled="disabled" ></input>' },
+                { field: "PostedOn", title: "Posted On", width: 55, template: '#= kendo.toString(PostedOn,"MM/dd/yyyy") #' },
+                { field: "Modified", title: "Modified", width: 55, template: '#= kendo.toString(Modified,"MM/dd/yyyy") #' },
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "40px" }
+            ],
+            //editable: true, // enable editing
+            editable: {
+                mode: "popup",
+                template: kendo.template($("#edit-template").html())
+            },
+            edit: function (e) {
+                $("#shortDescriptionEditor").kendoEditor({
+                    imageBrowser: {
+                        transport: {
+                            read: "@Url.Action("Read", "ImageBrowser", new { area = "Admin" })",
+                                    destroy: {
+                                        url: "@Url.Action("Destroy", "ImageBrowser", new { area = "Admin" })",
+                                type: "POST"
+                            },
+                                    create: {
+                                        url: "@Url.Action("Create", "ImageBrowser", new { area = "Admin" })",
+                                type: "POST"
+                            },
+                                    thumbnailUrl: "@Url.Action("Thumbnail", "ImageBrowser", new { area = "Admin" })",
+                                    uploadUrl: "@Url.Action("Upload", "ImageBrowser", new { area = "Admin" })",
+                            imageUrl: "@Url.Content("~/")" + "Admin/ImageBrowser/Image?path={0}"
+                                }
+                    }
+                });
+                $("#descriptionEditor").kendoEditor({
+                    imageBrowser: {
+                        transport: {
+                            read: "@Url.Action("Read", "ImageBrowser", new { area = "Admin" })",
+                            destroy: {
+                                url: "@Url.Action("Destroy", "ImageBrowser", new { area = "Admin" })",
+                                        type: "POST"
+                                    },
+                            create: {
+                                url: "@Url.Action("Create", "ImageBrowser", new { area = "Admin" })",
+                                        type: "POST"
+                                    },
+                            thumbnailUrl: "@Url.Action("Thumbnail", "ImageBrowser", new { area = "Admin" })",
+                            uploadUrl: "@Url.Action("Upload", "ImageBrowser", new { area = "Admin" })",
+                            imageUrl: "@Url.Content("~/")" + "Admin/ImageBrowser/Image?path={0}"
+                        }
+                    }
+                });
+                getCategories();
+                getAndSetTagsForPost(e.model.PostId);
+                var editWindow = this.editable.element.data("kendoWindow");
+                editWindow.wrapper.css({ width: 780 });
+            },
+            pageable: true,
+            sortable: true,
+            filterable: true,
+            toolbar: ["create"/*, "save", "cancel"*/], // specify toolbar commands
+            dataSource: {
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true,
+                pageSize: 10,
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    model: { // define the model of the data source. Required for validation and property types.
+                        id: "PostId",
+                        fields: {
+                            PostId: { editable: false, nullable: true, visible: false },
+                            Title: { type: "string", validation: { required: true } },
+                            ShortDescription: { type: "string", validation: { required: true } },
+                            Description: { type: "string", validation: { required: true } },
+                            Meta: { validation: { type: "string", required: true, visible: false } },
+                            UrlSlug: { validation: { type: "string", required: true, visible: false } },
+                            Published: { validation: { type: "boolean", required: false, visible: false } },
+                            PostedOn: { type: "date", validation: { required: true }, visible: false },
+                            Modified: { type: "date", validation: { required: true }, visible: false },
+                            CategoryName: { type: "string", editable: true, nullable: false, visible: true },
+                            CategoryId: { type: "integer", editable: true, nullable: false, visible: false }
+                        }
+                    }
+                },
+                batch: true, // enable batch editing - changes will be saved when the user clicks the "Save changes" button
+                transport: {
+                    create: {
+                        url: "@Url.Action("CreatePost", "Admin")", //specify the URL which should create new records. This is the Create method of the HomeController.
+                        type: "POST", //use HTTP POST request as the default GET is not allowed for ASMX
+                        complete: function (jqXhr, textStatus) {
+                            if (textStatus == 'success') {
+                                refreshPostGrid();
+                                toastr.success('Succes', 'Succesfully created Post');
+                            }
+                        }
+                    },
+                    read: {
+                        url: "@Url.Action("ReadPosts", "Admin")", //specify the URL which should return the records. This is the Read method of the HomeController.
+                        contentType: "application/json",
+                        type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC
+                        complete: function (jqXhr, textStatus) {
+                            if (textStatus == 'success') {
+                                toastr.success('Succes', 'Succesfully retrieved all Posts');
+                            }
+                        }
+                    },
+                    update: {
+                        url: "@Url.Action("UpdatePost", "Admin")", //specify the URL which should update the records. This is the Update method of the HomeController.
+                        type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC
+                        complete: function (jqXhr, textStatus) {
+                            if (textStatus == 'success') {
+                                refreshPostGrid();
+                                toastr.success('Succes', 'Succesfully updated Post');
+                            }
+                        }
+                    },
+                    destroy: {
+                        url: "@Url.Action("DeletePost", "Admin")", //specify the URL which should destroy the records. This is the Destroy method of the HomeController.
+                        type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC
+                        complete: function (jqXhr, textStatus) {
+                            if (textStatus == 'success') {
+                                refreshPostGrid();
+                                toastr.success('Succes', 'Succesfully deleted Post');
+                            }
+                        }
+                    },
+                    parameterMap: function (data, operation) {
+
+                        if (operation != "read") {
+                            // post the posts so the ASP.NET DefaultModelBinder will understand them:
+                            var result = {};
+                            for (var i = 0; i < data.models.length; i++) {
+                                var post = data.models[i];
+                                for (var member in post) {
+                                    result["posts[" + i + "]." + member] = post[member];
+                                }
+                            }
+                            return result;
+                        }
+                        else {
+                            return JSON.stringify(data);
+                        }
+                    }
+                },
+                change: function (data) {
+                    //toastr.success('Succes', 'Posts data succesfully retrieved');
+                },
+                error: function (xhr, error) {
+                    console.log(error);
+                    console.log(xhr);
+                    toastr.error('Error', error);
+                }
+        }
+        });
+        
+        function getAndSetTagsForPost(id) {
+            $("#multiselect").kendoMultiSelect();//Todo
+        };
+ 
+
+        function getCategories() {
+            $("#Category").kendoDropDownList({
+                dataTextField: "Name",
+                dataValueField: "CategoryId",
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "/Admin/Admin/GetAllCategories",
+                            dataType: "json",
+                            type: "POST"
+                        }
+                    }
+                }
+            });
+        }
+
+    });
+</script>
