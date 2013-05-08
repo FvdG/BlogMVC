@@ -28,6 +28,7 @@ For registering user uncomment section :
 App_Start->RouteConfig.cs 
 
 //For register user purpose
+
 //routes.MapRoute(
 //    name: "Default",
 //    url: "{controller}/{action}/{id}",
