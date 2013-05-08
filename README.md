@@ -26,6 +26,7 @@ Getting started :
 For registering user uncomment section : 
 
 App_Start->RouteConfig.cs 
+
 //For register user purpose
 //routes.MapRoute(
 //    name: "Default",
@@ -43,6 +44,7 @@ First restart you VisualStudio 2012, for reasons unknown data migrations won't a
 Uncomment line :
 
 Migrations->Configuration.cs
+
 protected override void Seed(BlogContext context)
 {
   //  This method will be called after migrating to the latest version.
@@ -52,6 +54,7 @@ protected override void Seed(BlogContext context)
 And comment the following line (else you will have duplicate data) :
 
 Project Blog.Data BlogContext.cs
+
 protected override void OnModelCreating(DbModelBuilder modelBuilder)
 {
 	// Use singular table names
