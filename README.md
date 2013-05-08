@@ -79,7 +79,8 @@ And hit enter.
 After that the database file will be seeded.	
 Now reverse the uncomment and comment part so you won't keep seeding the database file and get diplicate data.	
 
-- Navigate to http://localhost:[someport]/Admin	
+- Navigate to http://localhost:[someport]/Admin		
+
 Login with the earlier created user.
 
 -- TODO --
