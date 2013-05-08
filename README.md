@@ -25,14 +25,13 @@ Getting started :
 - Added controller for register user for admin section.
 For registering user uncomment section : 
 
-App_Start->RouteConfig.cs 
-
-//For register user purpose
-//routes.MapRoute(
-//    name: "Default",
-//    url: "{controller}/{action}/{id}",
-//    defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
-//);
+App_Start->RouteConfig.cs       
+//For register user purpose     
+//routes.MapRoute(      
+//    name: "Default",  
+//    url: "{controller}/{action}/{id}",        
+//    defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }       
+//);    
 
 Navigate to : http://localhost:[someport]/Account/Register
 Add username an password and confirm pasword
