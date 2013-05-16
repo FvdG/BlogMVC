@@ -84,10 +84,10 @@ Now reverse the uncomment and comment part so you won't keep seeding the databas
 Login with the earlier created user.
 
 -- TODO --
-- Admin posts editor is not complete. No way the add and display Tags at this point.
-- Some way to seed an admin user initially.
-- Add users edit grid in Admin.
-- New part fo adding comment to post and admin part to admin comments before granting.
+- Done. Admin posts editor is not complete. No way the add and display Tags at this point.
+- Open. Some way to seed an admin user initially.
+- Open. Add users edit grid in Admin.
+- Open. New part fo adding comment to post and admin part to admin comments before granting.
 
 
 With Kind Regards,
