@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using AutoMapper;
@@ -229,7 +231,20 @@ namespace Blog.Web.Areas.Admin.Controllers
         #endregion
 
         #region Posts
-        
+
+        public ActionResult GetSelectedTags(int postId)
+        {
+            var data = _postRepository.Post(postId).Tags.Select(t => t.TagId).ToList();
+            return Content(JsonConvert.SerializeObject(data, Formatting.Indented), "application/json");
+        }
+
+
+        public ActionResult GetAllTags()
+        {
+            var data =  _tagRepository.Tags().ToList();
+            return Content(JsonConvert.SerializeObject(data, Formatting.Indented), "application/json");
+        }
+
         public ActionResult PostGrid()
         {
             //ViewData["Category_Data"] = new SelectList(_categoryRepository.Categories(), "CategoryId", "Name");
@@ -316,6 +331,14 @@ namespace Blog.Web.Areas.Admin.Controllers
                         post.Published = postViewModel.Published;
                         post.Category = _categoryRepository.Category(postViewModel.CategoryId);
                         post.Modified = DateTime.Now;
+                        post.Tags.Clear();
+                        if (postViewModel.Tags != null)
+                        {
+                            foreach (var tag in postViewModel.Tags)
+                            {
+                                post.Tags.Add(_tagRepository.Tag(tag.TagId));
+                            }
+                        }
                     }
                     _postRepository.EditPost(post);
                     return Json(postViewModel);
@@ -348,7 +371,6 @@ namespace Blog.Web.Areas.Admin.Controllers
 
         public ActionResult GetAllCategories()
         {
-            var data1 = _tagRepository.TagsOfPost(1);
             var data = _categoryRepository.Categories();
             return Content(JsonConvert.SerializeObject(data, Formatting.Indented), "application/json");
         }

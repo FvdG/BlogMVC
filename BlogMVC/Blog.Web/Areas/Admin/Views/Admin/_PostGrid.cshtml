@@ -22,11 +22,7 @@
         </tr>
         <tr>
         <td><label>Tags :</label></td>
-        <td><select id="multiselect">
-            <option>Item 1</option>
-            <option>Item 2</option>
-            <option>Item 3</option>
-        </select></td>
+        <td><select id="Tags" name="Tags"></select></td>
     </tr>
     <tr>
         <td><label>Meta :</label></td>
@@ -50,6 +46,8 @@
             $("#postGrid").data("kendoGrid").dataSource.read();
         }
 
+        var a = [1, 2];
+
         $("#postGrid").kendoGrid({
             height: 430,
             columns: [
@@ -72,18 +70,18 @@
                     imageBrowser: {
                         transport: {
                             read: "@Url.Action("Read", "ImageBrowser", new { area = "Admin" })",
-                                    destroy: {
-                                        url: "@Url.Action("Destroy", "ImageBrowser", new { area = "Admin" })",
+                            destroy: {
+                                url: "@Url.Action("Destroy", "ImageBrowser", new { area = "Admin" })",
                                 type: "POST"
                             },
-                                    create: {
-                                        url: "@Url.Action("Create", "ImageBrowser", new { area = "Admin" })",
+                            create: {
+                                url: "@Url.Action("Create", "ImageBrowser", new { area = "Admin" })",
                                 type: "POST"
                             },
-                                    thumbnailUrl: "@Url.Action("Thumbnail", "ImageBrowser", new { area = "Admin" })",
-                                    uploadUrl: "@Url.Action("Upload", "ImageBrowser", new { area = "Admin" })",
+                            thumbnailUrl: "@Url.Action("Thumbnail", "ImageBrowser", new { area = "Admin" })",
+                            uploadUrl: "@Url.Action("Upload", "ImageBrowser", new { area = "Admin" })",
                             imageUrl: "@Url.Content("~/")" + "Admin/ImageBrowser/Image?path={0}"
-                                }
+                        }
                     }
                 });
                 $("#descriptionEditor").kendoEditor({
@@ -92,12 +90,12 @@
                             read: "@Url.Action("Read", "ImageBrowser", new { area = "Admin" })",
                             destroy: {
                                 url: "@Url.Action("Destroy", "ImageBrowser", new { area = "Admin" })",
-                                        type: "POST"
-                                    },
+                                type: "POST"
+                            },
                             create: {
                                 url: "@Url.Action("Create", "ImageBrowser", new { area = "Admin" })",
-                                        type: "POST"
-                                    },
+                                type: "POST"
+                            },
                             thumbnailUrl: "@Url.Action("Thumbnail", "ImageBrowser", new { area = "Admin" })",
                             uploadUrl: "@Url.Action("Upload", "ImageBrowser", new { area = "Admin" })",
                             imageUrl: "@Url.Content("~/")" + "Admin/ImageBrowser/Image?path={0}"
@@ -141,7 +139,7 @@
                 batch: true, // enable batch editing - changes will be saved when the user clicks the "Save changes" button
                 transport: {
                     create: {
-                        url: "@Url.Action("CreatePost", "Admin")", //specify the URL which should create new records. This is the Create method of the HomeController.
+                        url: "@Url.Action("CreatePost", "Admin")", //specify the URL which should create new records. This is the Create method of the AdminController.
                         type: "POST", //use HTTP POST request as the default GET is not allowed for ASMX
                         complete: function (jqXhr, textStatus) {
                             if (textStatus == 'success') {
@@ -151,7 +149,7 @@
                         }
                     },
                     read: {
-                        url: "@Url.Action("ReadPosts", "Admin")", //specify the URL which should return the records. This is the Read method of the HomeController.
+                        url: "@Url.Action("ReadPosts", "Admin")", //specify the URL which should return the records. This is the Read method of the AdminController.
                         contentType: "application/json",
                         type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC
                         complete: function (jqXhr, textStatus) {
@@ -161,8 +159,8 @@
                         }
                     },
                     update: {
-                        url: "@Url.Action("UpdatePost", "Admin")", //specify the URL which should update the records. This is the Update method of the HomeController.
-                        type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC
+                        url: "@Url.Action("UpdatePost", "Admin")", //specify the URL which should update the records. This is the Update method of the AdminController.
+                        type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC            
                         complete: function (jqXhr, textStatus) {
                             if (textStatus == 'success') {
                                 refreshPostGrid();
@@ -171,7 +169,7 @@
                         }
                     },
                     destroy: {
-                        url: "@Url.Action("DeletePost", "Admin")", //specify the URL which should destroy the records. This is the Destroy method of the HomeController.
+                        url: "@Url.Action("DeletePost", "Admin")", //specify the URL which should destroy the records. This is the Destroy method of the AdminController.
                         type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC
                         complete: function (jqXhr, textStatus) {
                             if (textStatus == 'success') {
@@ -188,9 +186,24 @@
                             for (var i = 0; i < data.models.length; i++) {
                                 var post = data.models[i];
                                 for (var member in post) {
-                                    result["posts[" + i + "]." + member] = post[member];
+                                    // set the value of the multiselect.
+                                    if (member != "Tags") {
+                                        result["posts[" + i + "]." + member] = post[member];
+
+                                    } else {
+                                        var multiselect = $("#Tags").data("kendoMultiSelect");
+                                        var selectedTags = multiselect.dataItems();
+                                        for (var i2 = 0; i2 < selectedTags.length; i2++) {
+                                            result["posts[" + i + "]." + member + "[" + i2 + "].TagId"] = selectedTags[i2].TagId;
+                                            result["posts[" + i + "]." + member + "[" + i2 + "].Name"] = selectedTags[i2].Name;
+                                            result["posts[" + i + "]." + member + "[" + i2 + "].UrlSlug"] = selectedTags[i2].UrlSlug;
+                                            result["posts[" + i + "]." + member + "[" + i2 + "].Description"] = selectedTags[i2].Description;
+                                            result["posts[" + i + "]." + member + "[" + i2 + "].Posts"] = null;
+                                        }
+                                    }               
                                 }
                             }
+                            console.log(result);
                             return result;
                         }
                         else {
@@ -198,21 +211,52 @@
                         }
                     }
                 },
-                change: function (data) {
-                    //toastr.success('Succes', 'Posts data succesfully retrieved');
-                },
                 error: function (xhr, error) {
                     console.log(error);
                     console.log(xhr);
                     toastr.error('Error', error);
                 }
-        }
+            }
         });
         
         function getAndSetTagsForPost(id) {
-            $("#multiselect").kendoMultiSelect();//Todo
-        };
- 
+            $("#Tags").kendoMultiSelect({
+                dataTextField: "Name",
+                dataValueField: "TagId",
+                dataSource: new kendo.data.DataSource({
+                    transport: {
+                        read: {
+                            // the remote service url
+                            url: "/Admin/Admin/GetAllTags",
+                            // json is required for cross-domain AJAX
+                            dataType: "json",
+                            //// additional parameters sent to the remote service
+                            //data: {
+                            //    postId: id
+                            //}
+                            complete : function() {
+                                setSelectedTags(id);
+                            }
+                        }
+                    }
+                })
+            });
+        }
+        
+        function setSelectedTags(id) {
+            var getSelectedTagsUrl = '@Url.Action("GetSelectedTags", "Admin", new { area = "Admin", postId = "postIdValue"} )';
+            getSelectedTagsUrl = getSelectedTagsUrl.replace("postIdValue", id);
+            $.ajax({
+                type: 'POST',
+                url: getSelectedTagsUrl,
+                dataType: 'json',
+                success: function (data) {
+                    var multiselect = $("#Tags").data("kendoMultiSelect");
+                    // set the value of the multiselect.
+                    multiselect.value(data);
+                }
+            });
+        }
 
         function getCategories() {
             $("#Category").kendoDropDownList({
