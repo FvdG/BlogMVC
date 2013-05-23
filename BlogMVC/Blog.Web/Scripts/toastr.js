@@ -168,7 +168,7 @@
                 error: error,
                 getContainer: getContainer,
                 info: info,
-                options: {},
+                options: { "positionClass": "toast-bottom-right" },
                 success: success,
                 version: '1.2.2',
                 warning: warning

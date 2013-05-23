@@ -1,0 +1,230 @@
+﻿<div id="userGrid"></div>
+<div id="createUserWindow">
+    <form id="CreateUserForm">
+    <fieldset>
+        <legend>Registration Form</legend>
+        <ol>
+            <li>
+                <label for="UserName" class="required">UserName :</label>
+                <input type="text" id="UserName" name="UserName" required validationMessage="Please enter username"/>
+                <span class="k-invalid-msg" data-for="UserName"></span>
+            </li>
+            <li>
+                <label for="Password" class="required">Password :</label>
+                <input type="text" id="Password" name="Password" required validationMessage="Please enter password"/>
+                <span class="k-invalid-msg" data-for="Password"></span>
+            </li>
+            <li>
+                <label for="ConfirmPassword" class="required">ConfirmPassword :</label>
+                <input type="text" id="ConfirmPassword" name="ConfirmPassword" required data-required-msg="Please enter ConfirmPassword"/>
+                <span class="k-invalid-msg" data-for="ConfirmPassword"></span>
+            </li>
+        </ol>
+        <button class="k-button" type="submit" value="Submit" name="Submit">Submit</button>
+    </fieldset>
+    </form>
+</div>
+<script>
+    $(function () {
+        function refreshTagGrid() {
+            $("#userGrid").data("kendoGrid").dataSource.read();
+        }
+        
+        var validator = $("#createUserWindow").kendoValidator({
+            rules: {
+                compare: function(input) {
+                    if (input.is("[name=ConfirmPassword]")) {
+                        return input.val() === $("#Password").val();
+                    } else {
+                        return true;
+                    }
+                }
+            },
+            messages: {
+                compare: "Password not equal to ConfirmPassword",
+            }
+        }).data("kendoValidator"),
+        status = $(".status");
+        
+        $("button").click(function () {
+            if (validator.validate()) {
+                status.text("Hooray! Your tickets has been booked!")
+                    .removeClass("invalid")
+                    .addClass("valid");
+            } else {
+                status.text("Oops! There is invalid data in the form.")
+                    .removeClass("valid")
+                    .addClass("invalid");
+            }
+        });
+
+        //ToDo : Should be made dynamic from admin controller 
+        var rolesdata = [{
+            "value": 1,
+            "text": "Administrator"
+        }, {
+            "value": 2,
+            "text": "SuperUser"
+        }, {
+            "value": 3,
+            "text": "Editor"
+        }, {
+            "value": 4,
+            "text": "User"
+        }];
+        
+
+        $("#userGrid").kendoGrid({
+            height: 430,
+            columns: [
+                { field: "Username", title: "Username", width: 100 },
+                { field: "RoleId", width: "150px", values: rolesdata, title: "RoleName" },
+                { command: ["edit"/*, "destroy"*/], title: "&nbsp;", width: "40px" }
+            ],
+            editable: {
+                mode: "popup"
+            },
+            pageable: true,
+            sortable: true,
+            filterable: true,
+            toolbar: [/*"create", "save", "cancel"*/
+                {
+                    name: "Add",
+                    text: "Add new record",
+                    imageClass: "k-icon k-i-plus",
+                    click: function(e){console.log("foo"); return false;}
+                }
+            ], // specify toolbar commands
+            dataSource: {
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true,
+                pageSize: 10,
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    model: { // define the model of the data source. Required for validation and property types.
+                        id: "UserId",
+                        fields: {
+                            UserId: { editable: false, nullable: true, visible: false },
+                            Username: { type: "string", validation: { required: true } },
+                            RoleId: { field : "RoleId", type : "number", defaultValue:4}
+                        }
+                    }
+                },
+                batch: true, // enable batch editing - changes will be saved when the user clicks the "Save changes" button
+                transport: {
+                    create: {
+                        url: "@Url.Action("CreateUser", "Admin")", //specify the URL which should create new records. This is the Create method of the HomeController.
+                        type: "POST", //use HTTP POST request as the default GET is not allowed for ASMX
+                        complete: function (jqXhr, textStatus) {
+                            if (textStatus == 'success') {
+                                refreshTagGrid();
+                                toastr.success('Succes', 'Succesfully created User');
+                            }
+                        }
+                    },
+                    read: {
+                        url: "@Url.Action("ReadUsers", "Admin")", //specify the URL which should return the records. This is the Read method of the HomeController.
+                        contentType: "application/json",
+                        type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC
+                        complete: function (jqXhr, textStatus) {
+                            if (textStatus == 'success') {
+                                toastr.success('Succes', 'Succesfully retrieved all Users');
+                            }
+                        }
+                    },
+                    update: {
+                        url: "@Url.Action("UpdateUser", "Admin")", //specify the URL which should update the records. This is the Update method of the HomeController.
+                        type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC
+                        complete: function (jqXhr, textStatus) {
+                            if (textStatus == 'success') {
+                                refreshTagGrid();
+                                toastr.success('Succes', 'Succesfully updated User');
+                            }
+                        }
+                    },
+                    destroy: {
+                        url: "@Url.Action("DeleteUser", "Admin")", //specify the URL which should destroy the records. This is the Destroy method of the HomeController.
+                        type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC
+                        complete: function (jqXhr, textStatus) {
+                            if (textStatus == 'success') {
+                                refreshTagGrid();
+                                toastr.success('Succes', 'Succesfully deleted User');
+                            }
+                        }
+                    },
+                    parameterMap: function (data, operation) {
+
+                        if (operation != "read") {
+                            // post the Users so the ASP.NET DefaultModelBinder will understand them:
+                            var result = {};
+                            for (var i = 0; i < data.models.length; i++) {
+                                var user = data.models[i];
+                                for (var member in user) {
+                                    result["users[" + i + "]." + member] = user[member];
+                                }
+                            }
+                            return result;
+                        }
+                        else {
+                            return JSON.stringify(data);
+                        }
+                    }
+                },
+                change: function (data) {
+                    //toastr.success('Succes', 'Tags data succesfully retrieved');
+                },
+                error: function (xhr, error) {
+                    console.log(error);
+                    console.log(xhr);
+                    toastr.error('Error', error);         
+                }
+        }
+        });
+        
+        var handleUserInput = function() {
+            refreshTagGrid();
+        };
+
+        var win = $("#createUserWindow")
+            .kendoWindow({
+                actions: ["Maximize", "Close"],
+                animation: {
+                    open: {
+                        effects: "slideIn:down fadeIn",
+                        duration: 500
+                    },
+                    close: {
+                        effects: "slide:up fadeOut",
+                        duration: 500
+                    }
+                },
+                minWidth: 450,
+                modal: true,
+                resizable: true,
+                title: "Register new User",
+                visible: false,
+                close: handleUserInput
+            })
+            .data("kendoWindow");
+
+        $('form').submit(function (e) {
+            e.preventDefault();
+            $.post("@Url.Action("CreateUser", "Admin")", $(this).serialize(), function (response) {
+                if (response.error) {
+                    toastr.error('Error', response.error);
+                }
+                else {
+                    toastr.success('Succes', 'Succesfully added User');
+                    win.close();
+                }
+            }, 'json');
+        });
+
+        $(".k-grid-Add", "#userGrid").bind("click", function (ev) {
+            win.open();
+            win.center();
+        });
+});
+</script>

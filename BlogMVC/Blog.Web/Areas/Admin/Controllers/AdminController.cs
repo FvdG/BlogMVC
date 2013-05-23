@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 using AutoMapper;
 using Blog.Domain.Interfaces;
 using Blog.Domain.Models;
 using Blog.Web.Areas.Admin.Models;
+using Blog.Web.Controllers;
 using Blog.Web.Filters;
 using Blog.Web.Models;
+using Microsoft.Web.WebPages.OAuth;
 using Newtonsoft.Json;
 using WebMatrix.WebData;
 
@@ -23,13 +27,17 @@ namespace Blog.Web.Areas.Admin.Controllers
         private readonly IPostRepository _postRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly ITagRepository _tagRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
 
         public AdminController(IPostRepository postRepository, ICategoryRepository categoryRepository,
-            ITagRepository tagRepository)
+            ITagRepository tagRepository, IUserRepository userRepository, IRoleRepository roleRepository)
         {
             _postRepository = postRepository;
             _categoryRepository = categoryRepository;
             _tagRepository = tagRepository;
+            _userRepository = userRepository;
+            _roleRepository = roleRepository;
         }
 
         #region Categories
@@ -383,6 +391,93 @@ namespace Blog.Web.Areas.Admin.Controllers
 
         #endregion
 
+        #region Users
+        public ActionResult UserGrid()
+        {
+            return PartialView("_UserGrid");
+        }
+
+        [HttpPost]
+        public ActionResult CreateUser(CreateUserForm createUserForm)
+        {
+
+            if (ModelState.IsValid)
+            {
+                //Attempt to register the user
+                try
+                {
+                    WebSecurity.CreateUserAndAccount(createUserForm.UserName, createUserForm.Password);
+                    WebSecurity.Login(createUserForm.UserName, createUserForm.Password);
+                    //CLOSE WINDOW
+                    return Json(new { success = true });
+                }
+                catch (MembershipCreateUserException e)
+                {
+                    ModelState.AddModelError("", ErrorCodeToString(e.StatusCode));
+                    return Json(new { error = ErrorCodeToString(e.StatusCode) });
+                }
+            }
+
+            return Json(new { error = "Generic Error Message!" });
+        }
+
+        [HttpPost]
+        public JsonResult UpdateUser(IEnumerable<UserViewModel> users)
+        {
+            var userViewModels = users as UserViewModel[] ?? users.ToArray();
+            if (userViewModels.Any())
+            {
+                //Get first because at the moment no multiple update available
+                UserViewModel userViewModel = userViewModels.FirstOrDefault();
+                if (userViewModel != null)
+                {
+                    User user = _userRepository.GetUser(userViewModel.UserId);
+                    if (user != null)
+                    {
+                        user.UserName = userViewModel.Username;
+                        //Currently only 1 role needed
+                        user.Roles.Clear();
+                        user.Roles = new Collection<Role> {_roleRepository.GetRole(userViewModel.RoleId)};
+                    }
+                    
+                    _userRepository.UpdateUser(user);
+                    return Json(userViewModel);
+                }
+            }
+            return null;
+        }
+
+        [HttpPost]
+        public JsonResult DeleteUser(IEnumerable<UserViewModel> users)
+        {
+            var userViewModels = users as UserViewModel[] ?? users.ToArray();
+            if (userViewModels.Any())
+            {
+                //Get first because at the moment no multiple delete available
+                UserViewModel userViewModel = userViewModels.FirstOrDefault();
+                if (userViewModel != null)
+                {
+                    //Not implemented yet.
+                    //_userRepository.RemoveUser(userViewModel.UserId);
+                    //Return emtpy result
+                    return Json(string.Empty);
+                }
+            }
+            return null;
+        }
+
+        [HttpPost]
+        public ActionResult ReadUsers(int take, int skip, IEnumerable<Sort> sort, Blog.Web.Models.Filter filter)
+        {
+            //var roles = _roleRepository.GetRoles();
+            //ViewBag["rolesdata"] = new SelectList(roles, dataValueField: "RoleId", dataTextField: "RoleName");
+
+            var users = Mapper.Map<User[], UserViewModel[]>(_userRepository.GetUsers().ToArray());
+            DataSourceResult result = users.AsQueryable().ToDataSourceResult(take, skip, sort, filter);
+            return Json(result);
+        }
+        #endregion
+
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
@@ -423,6 +518,157 @@ namespace Blog.Web.Areas.Admin.Controllers
             return RedirectToAction("Index", "Admin", new { area = "Admin" });
             
         }
+
+        //
+        // POST: /Account/Manage
+
+        public enum ManageMessageId
+        {
+            ChangePasswordSuccess,
+            SetPasswordSuccess,
+            RemoveLoginSuccess,
+        }
+
+        private static string ErrorCodeToString(MembershipCreateStatus createStatus)
+        {
+            // See http://go.microsoft.com/fwlink/?LinkID=177550 for
+            // a full list of status codes.
+            switch (createStatus)
+            {
+                case MembershipCreateStatus.DuplicateUserName:
+                    return "User name already exists. Please enter a different user name.";
+
+                case MembershipCreateStatus.DuplicateEmail:
+                    return "A user name for that e-mail address already exists. Please enter a different e-mail address.";
+
+                case MembershipCreateStatus.InvalidPassword:
+                    return "The password provided is invalid. Please enter a valid password value.";
+
+                case MembershipCreateStatus.InvalidEmail:
+                    return "The e-mail address provided is invalid. Please check the value and try again.";
+
+                case MembershipCreateStatus.InvalidAnswer:
+                    return "The password retrieval answer provided is invalid. Please check the value and try again.";
+
+                case MembershipCreateStatus.InvalidQuestion:
+                    return "The password retrieval question provided is invalid. Please check the value and try again.";
+
+                case MembershipCreateStatus.InvalidUserName:
+                    return "The user name provided is invalid. Please check the value and try again.";
+
+                case MembershipCreateStatus.ProviderError:
+                    return "The authentication provider returned an error. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+
+                case MembershipCreateStatus.UserRejected:
+                    return "The user creation request has been canceled. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+
+                default:
+                    return "An unknown error occurred. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+            }
+        }
+
+        //
+        // GET: /Account/Manage
+
+        public ActionResult Manage(ManageMessageId? message)
+        {
+            ViewBag.StatusMessage =
+                message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
+                : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
+                : message == ManageMessageId.RemoveLoginSuccess ? "The external login was removed."
+                : "";
+            ViewBag.HasLocalPassword = OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(User.Identity.Name));
+            ViewBag.ReturnUrl = Url.Action("Manage");
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Manage(LocalPasswordModel model)
+        {
+            bool hasLocalAccount = OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(User.Identity.Name));
+            ViewBag.HasLocalPassword = hasLocalAccount;
+            ViewBag.ReturnUrl = Url.Action("Manage");
+            if (hasLocalAccount)
+            {
+                if (ModelState.IsValid)
+                {
+                    // ChangePassword will throw an exception rather than return false in certain failure scenarios.
+                    bool changePasswordSucceeded;
+                    try
+                    {
+                        changePasswordSucceeded = WebSecurity.ChangePassword(User.Identity.Name, model.OldPassword, model.NewPassword);
+                    }
+                    catch (Exception)
+                    {
+                        changePasswordSucceeded = false;
+                    }
+
+                    if (changePasswordSucceeded)
+                    {
+                        return RedirectToAction("Manage", new { Message = ManageMessageId.ChangePasswordSuccess });
+                    }
+                    ModelState.AddModelError("", "The current password is incorrect or the new password is invalid.");
+                }
+            }
+            else
+            {
+                // User does not have a local password so remove any validation errors caused by a missing
+                // OldPassword field
+                ModelState state = ModelState["OldPassword"];
+                if (state != null)
+                {
+                    state.Errors.Clear();
+                }
+
+                if (ModelState.IsValid)
+                {
+                    try
+                    {
+                        WebSecurity.CreateAccount(User.Identity.Name, model.NewPassword);
+                        return RedirectToAction("Manage", new { Message = ManageMessageId.SetPasswordSuccess });
+                    }
+                    catch (Exception e)
+                    {
+                        ModelState.AddModelError("", e);
+                    }
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+        public ActionResult Register()
+        {
+            return View();
+        }
+
+        //
+        // POST: /Account/Register
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Register(RegisterModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        // Attempt to register the user
+        //        try
+        //        {
+        //            WebSecurity.CreateUserAndAccount(model.UserName, model.Password);
+        //            WebSecurity.Login(model.UserName, model.Password);
+        //            return RedirectToAction("Index", "Admin");
+        //        }
+        //        catch (MembershipCreateUserException e)
+        //        {
+        //            ModelState.AddModelError("", ErrorCodeToString(e.StatusCode));
+        //        }
+        //    }
+
+        //    // If we got this far, something failed, redisplay form
+        //    return View(model);
+        //}
 
         public ActionResult Index()
         {

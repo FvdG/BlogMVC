@@ -210,6 +210,7 @@
     <Compile Include="Areas\Admin\Controllers\AdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\ImageBrowserController.cs" />
     <Compile Include="Areas\Admin\Models\CategoryViewModel.cs" />
+    <Compile Include="Areas\Admin\Models\CreateUserForm.cs" />
     <Compile Include="Areas\Admin\Models\DirectoryBrowser.cs" />
     <Compile Include="Areas\Admin\Models\EntryType.cs" />
     <Compile Include="Areas\Admin\Models\FileBrowserEntry.cs" />
@@ -217,6 +218,8 @@
     <Compile Include="Areas\Admin\Models\ImageSize.cs" />
     <Compile Include="Areas\Admin\Models\TagViewModel.cs" />
     <Compile Include="Areas\Admin\Models\ThumbnailCreator.cs" />
+    <Compile Include="Areas\Admin\Models\UserViewModel.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BlogController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="CustomDateTimeConverter.cs" />
@@ -921,7 +924,6 @@
     <Content Include="App_Code\Helpers.cshtml" />
     <Content Include="Areas\Admin\Web.config" />
     <Content Include="Images\separator.png" />
-    <Content Include="Scripts\pages\admin.js" />
     <Content Include="Scripts\toastr.js" />
     <Content Include="Scripts\toastr.min.js" />
     <Content Include="Views\Shared\_LayoutAdmin.cshtml" />
@@ -929,6 +931,11 @@
     <Content Include="Areas\Admin\Views\Admin\_PostGrid.cshtml" />
     <Content Include="Areas\Admin\Views\Admin\_CategoryGrid.cshtml" />
     <Content Include="Areas\Admin\Views\Admin\_TagGrid.cshtml" />
+    <Content Include="Areas\Admin\Views\Admin\_UserGrid.cshtml" />
+    <Content Include="Areas\Admin\Views\Admin\Register.cshtml" />
+    <Content Include="Areas\Admin\Views\Admin\Manage.cshtml" />
+    <Content Include="Areas\Admin\Views\Admin\_SetPasswordPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\Admin\_ChangePasswordPartial.cshtml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Images\cityscape.jpg" />
     <Content Include="Images\favicon.ico" />
@@ -1375,16 +1382,11 @@
     <Content Include="Images\orderedList8.png" />
     <Content Include="Images\orderedList9.png" />
     <Content Include="Areas\Admin\Views\_ViewStart.cshtml" />
-    <Content Include="Views\Account\_ChangePasswordPartial.cshtml" />
-    <Content Include="Views\Account\_SetPasswordPartial.cshtml" />
-    <Content Include="Views\Account\Login.cshtml" />
-    <Content Include="Views\Account\Manage.cshtml" />
-    <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Web.config" />
-    <Content Include="Views\Admin\Login.cshtml" />
+    <Content Include="Areas\Admin\Views\Admin\Login.cshtml" />
     <Content Include="Views\Blog\Aboutme.cshtml" />
     <Content Include="Views\Blog\Contact.cshtml" />
     <Content Include="Views\Blog\List.cshtml" />
@@ -1403,6 +1405,9 @@
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Views\Shared\" />
     <Folder Include="Content\Images\" />
+    <Folder Include="Scripts\pages\" />
+    <Folder Include="Views\Account\" />
+    <Folder Include="Views\Admin\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

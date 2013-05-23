@@ -55,3 +55,65 @@
     .abutton.create {
         background: url('/Content/icons/add.png');
     }
+
+
+    
+/* info and errors */
+.message-info {
+    border: 1px solid;
+    clear: both;
+    padding: 10px 20px;
+}
+
+.message-error {
+    color: #7d2a11;
+    background-color: #FFE8E8;
+    border: 1px dashed #CCCCCC;
+    margin: 5px;
+    padding: 10px;
+    clear: both;
+}
+
+.message-success {
+    color: #7d7a11;
+    background-color: #FFFFCC;
+    border: 1px dashed #CCCCCC;
+    margin: 5px;
+    padding: 10px;
+    clear: both;
+}
+
+.error {
+    color: #e80c4d;
+}
+
+.field-validation-error {
+    color: #e80c4d;
+    font-weight: bold;
+}
+
+.field-validation-valid {
+    display: none;
+}
+
+input.input-validation-error {
+    border: 1px solid #e80c4d;
+}
+
+input[type="checkbox"].input-validation-error {
+    border: 0 none;
+}
+
+.validation-summary-errors {
+    color: #7d2a11;
+    background-color: #FFEEEE;
+    border: 1px dashed #CCCCCC;
+    margin: 5px;
+    clear: both;
+}
+
+.validation-summary-valid {
+    display: none;
+}
+
+/* end info and errors */

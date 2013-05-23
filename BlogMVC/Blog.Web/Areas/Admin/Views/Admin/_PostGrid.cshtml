@@ -103,7 +103,7 @@
                     }
                 });
                 getCategories();
-                getAndSetTagsForPost(e.model.PostId);
+                getAndSetTagsForPost(e.model.PostId);        
                 var editWindow = this.editable.element.data("kendoWindow");
                 editWindow.wrapper.css({ width: 780 });
             },
@@ -230,12 +230,8 @@
                             url: "/Admin/Admin/GetAllTags",
                             // json is required for cross-domain AJAX
                             dataType: "json",
-                            //// additional parameters sent to the remote service
-                            //data: {
-                            //    postId: id
-                            //}
-                            complete : function() {
-                                setSelectedTags(id);
+                            complete: function () {
+                                if (id != null) setSelectedTags(id);  
                             }
                         }
                     }

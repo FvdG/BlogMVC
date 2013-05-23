@@ -1,0 +1,28 @@
+﻿@model Blog.Web.Models.LocalPasswordModel
+
+
+<div class="modal fade in">
+  <div class="modal-header">
+    <h3>Modal header</h3>
+  </div>
+  <div class="modal-body">
+      <p>
+
+        <p class="message-success">@ViewBag.StatusMessage</p>
+
+        <p>You're logged in as <strong>@User.Identity.Name</strong>.</p>
+
+        @(ViewBag.HasLocalPassword ? Html.Partial("_ChangePasswordPartial") : Html.Partial("_SetPasswordPartial"))
+
+      </p>
+  </div>
+  <div class="modal-footer">
+      @Html.ActionLink("Close","Index",null, new { @class="btn" })
+  </div>
+</div>
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

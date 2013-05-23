@@ -1,6 +1,5 @@
 //===================================================================================
 // Microsoft patterns & practices
-// Silk : Web Client Guidance
 //===================================================================================
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY
@@ -37,6 +36,8 @@ namespace Blog.Web
                 .RegisterType<ICategoryRepository, CategoryRepository>()
                 .RegisterType<IPostRepository, PostRepository>()
                 .RegisterType<ITagRepository, TagRepository>()
+                .RegisterType<IUserRepository, UserRepository>()
+                .RegisterType<IRoleRepository, RoleRepository>()
                 .RegisterType<IUnitOfWork, BlogContext>(new UnityHttpContextPerRequestLifetimeManager());
             return container;
         }

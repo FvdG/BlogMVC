@@ -7,9 +7,25 @@
         <li class="k-state-active">Posts</li>
         <li>Categories</li>
         <li>Tags</li>
+        @if (User.IsInRole("Administrator"))
+        {
+            <text><li>Users</li></text>
+        }    
     </ul>
 </div>
-
-@section scripts {
-	<script src="~/Scripts/pages/admin.js"></script>
-}
+<script>
+    $(document).ready(function () {
+        $("#tabstrip").kendoTabStrip({
+            animation: { open: { effects: "fadeIn" } },
+            contentUrls: [
+                        '/Admin/Admin/PostGrid',
+                        '/Admin/Admin/CategoryGrid',
+                        '/Admin/Admin/TagGrid'
+                         @if (User.IsInRole("Administrator"))
+                         {
+                             <text>,'/Admin/Admin/UserGrid'</text>
+                         }
+                         ]
+        });
+    });
+</script>
