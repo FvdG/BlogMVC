@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
-using System.Data.Entity.ModelConfiguration.Configuration;
 using System.Data.Entity.Validation;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -19,8 +18,12 @@ namespace Blog.Data
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<Contact> Contacts { get; set; }
+        public DbSet<Membership> Memberships { get; set; }
         public DbSet<Post> Posts { get; set; }
+        public DbSet<Role> Roles { get; set; }
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<User> Users { get; set; }
+
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -62,23 +65,6 @@ namespace Blog.Data
             modelBuilder.Entity<Contact>().Property(c => c.Body).IsRequired().IsMaxLength();
         }
 
-        private static void SetupPostEntity(DbModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Post>().HasKey(p => p.PostId);
-            modelBuilder.Entity<Post>().Property(p => p.PostId)
-                        .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-            modelBuilder.Entity<Post>().Property(p => p.Title).IsRequired().HasMaxLength(500);
-            modelBuilder.Entity<Post>().Property(p => p.ShortDescription).IsRequired().IsMaxLength();
-            modelBuilder.Entity<Post>().Property(p => p.Description).IsRequired().IsMaxLength();
-            modelBuilder.Entity<Post>().Property(p => p.Meta).IsRequired().HasMaxLength(1000);
-            modelBuilder.Entity<Post>().Property(p => p.UrlSlug).IsRequired().HasMaxLength(1000);
-            modelBuilder.Entity<Post>().Property(p => p.Published);
-            modelBuilder.Entity<Post>().Property(p => p.PostedOn).IsRequired();
-            modelBuilder.Entity<Post>().Property(p => p.Modified).IsOptional();
-            modelBuilder.Entity<Post>().HasRequired(p => p.Category);
-            modelBuilder.Entity<Post>().HasMany(p => p.Tags);
-        }
-
         private static void SetupMembershipEntity(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Membership>().HasKey(m => m.UserId);
@@ -97,12 +83,29 @@ namespace Blog.Data
             modelBuilder.Entity<Membership>().ToTable("webpages_Membership");
         }
 
+        private static void SetupPostEntity(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Post>().HasKey(p => p.PostId);
+            modelBuilder.Entity<Post>().Property(p => p.PostId)
+                        .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            modelBuilder.Entity<Post>().Property(p => p.Title).IsRequired().HasMaxLength(500);
+            modelBuilder.Entity<Post>().Property(p => p.ShortDescription).IsRequired().IsMaxLength();
+            modelBuilder.Entity<Post>().Property(p => p.Description).IsRequired().IsMaxLength();
+            modelBuilder.Entity<Post>().Property(p => p.Meta).IsRequired().HasMaxLength(1000);
+            modelBuilder.Entity<Post>().Property(p => p.UrlSlug).IsRequired().HasMaxLength(1000);
+            modelBuilder.Entity<Post>().Property(p => p.Published);
+            modelBuilder.Entity<Post>().Property(p => p.PostedOn).IsRequired();
+            modelBuilder.Entity<Post>().Property(p => p.Modified).IsOptional();
+            modelBuilder.Entity<Post>().HasRequired(p => p.Category);
+            modelBuilder.Entity<Post>().HasMany(p => p.Tags);
+        }
+
         private static void SetupRoleEntity(DbModelBuilder modelBuilder)
         {
             //Role mappings
             modelBuilder.Entity<Role>().HasKey(r => r.RoleId);
             modelBuilder.Entity<Role>().Property(r => r.RoleName).IsOptional().HasMaxLength(256);
-            modelBuilder.Entity<Role>().HasMany(r => r.Users);
+            modelBuilder.Entity<Role>().HasMany(r => r.Users).WithOptional();
             modelBuilder.Entity<Role>().ToTable("webpages_Roles");
         }
 

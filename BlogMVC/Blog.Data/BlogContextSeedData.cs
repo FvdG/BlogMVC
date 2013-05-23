@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Validation;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web.Helpers;
 using Blog.Domain.Models;
 
 namespace Blog.Data
@@ -15,20 +14,22 @@ namespace Blog.Data
             SeedTag();
             SeedCategory();
             SeedPost();
-        }
+            SeedRole();
+            SeedAdminUser();
+        } 
 
         private void SeedTag()
         {
-            Tags.Add(new Tag {TagId = 1, Name = "CSharp", Description = "csharp", Posts = null, UrlSlug = ""});
-            Tags.Add(new Tag { TagId = 2, Name = "ASP", Description = "asp", Posts = null, UrlSlug = "" });
-            Tags.Add(new Tag { TagId = 3, Name = "ASP.NET", Description = "asp.net", Posts = null, UrlSlug = "" });
+            Tags.Add(new Tag { TagId = 1, Name = "CSharp", Description = "csharp", Posts = null, UrlSlug = "CSharp" });
+            Tags.Add(new Tag { TagId = 2, Name = "ASP", Description = "asp", Posts = null, UrlSlug = "ASP" });
+            Tags.Add(new Tag { TagId = 3, Name = "ASP.NET", Description = "asp.net", Posts = null, UrlSlug = "ASP.NET" });
             SaveChanges();
         }
 
         private void SeedCategory()
         {
-            Categories.Add(new Category {CategoryId = 1, Name = "Programming", Description = "programming", Posts = null, UrlSlug = "" });
-            Categories.Add(new Category { CategoryId = 2, Name = "Humor", Description = "humor", Posts = null, UrlSlug = "" });
+            Categories.Add(new Category { CategoryId = 1, Name = "Programming", Description = "programming", Posts = null, UrlSlug = "Programming" });
+            Categories.Add(new Category { CategoryId = 2, Name = "Humor", Description = "humor", Posts = null, UrlSlug = "Humor" });
             SaveChanges();
         }
 
@@ -99,6 +100,37 @@ namespace Blog.Data
                 });
             SaveChanges();
             
+        }
+
+        private void SeedRole()
+        {
+            Roles.Add(new Role { RoleId = 1, RoleName = "Administrator"});
+            Roles.Add(new Role { RoleId = 2, RoleName = "SuperUser" });
+            Roles.Add(new Role { RoleId = 3, RoleName = "Editor" });
+            Roles.Add(new Role { RoleId = 4, RoleName = "User" });
+            SaveChanges();
+        }
+
+        private void SeedAdminUser()
+        {
+            var admin = new User
+                {
+                    UserId = 1,
+                    UserName = "Admin",
+                    Roles = new Collection<Role> { Roles.SingleOrDefault(r => r.RoleName == "Administrator") }
+                };
+            Users.Add(admin);
+            SaveChanges();
+            Memberships.Add(new Membership
+                {
+                    UserId = 1,
+                    CreateDate = DateTime.Now,
+                    IsConfirmed = true,
+                    Password = Crypto.HashPassword("administrator"),
+                    PasswordChangedDate = DateTime.Now,
+                    PasswordSalt = ""        
+                });
+            SaveChanges();
         }
     }
 }

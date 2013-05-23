@@ -30,7 +30,9 @@ namespace Blog.Data.Repositories
                     typeof (Contact),
                     typeof (Post),
                     typeof (Tag),
-
+                    typeof (User),
+                    typeof (Membership),
+                    typeof (Role)
                 };
             Children = new List<Type>();
         }
