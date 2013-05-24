@@ -200,6 +200,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionLinkExtensions.cs" />
+    <Compile Include="AppSettings.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AppSettings.tt</DependentUpon>
+    </Compile>
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -219,7 +224,7 @@
     <Compile Include="Areas\Admin\Models\TagViewModel.cs" />
     <Compile Include="Areas\Admin\Models\ThumbnailCreator.cs" />
     <Compile Include="Areas\Admin\Models\UserViewModel.cs" />
-    <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BlogController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="CustomDateTimeConverter.cs" />
@@ -281,7 +286,8 @@
     <Content Include="Content\kendo.common.min.css" />
     <Content Include="Content\kendo.default.min.css" />
     <Content Include="Content\kendo.rtl.min.css" />
-    <Content Include="Content\photo.jpg" />
+    <Content Include="Content\logo_frank.png" />
+    <Content Include="Content\logo_frank_small.png" />
     <Content Include="Content\themes\simple\admin.css" />
     <Content Include="Content\themes\simple\images\arrow.png" />
     <Content Include="Content\themes\simple\images\back.png" />
@@ -936,6 +942,10 @@
     <Content Include="Areas\Admin\Views\Admin\Manage.cshtml" />
     <Content Include="Areas\Admin\Views\Admin\_SetPasswordPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Admin\_ChangePasswordPartial.cshtml" />
+    <Content Include="AppSettings.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AppSettings.cs</LastGenOutput>
+    </Content>
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Images\cityscape.jpg" />
     <Content Include="Images\favicon.ico" />
@@ -1421,6 +1431,9 @@
       <Project>{59b4cdc0-4254-45d7-85db-344da4e8bd70}</Project>
       <Name>Blog.Domain</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -21,6 +21,11 @@ namespace Blog.Data.Repositories
             return GetDbSet<User>();
         }
 
+        public User GetByUsername(string userName)
+        {
+            return GetDbSet<User>().SingleOrDefault(u => u.UserName == userName);
+        }
+
         public User GetUser(int userId)
         {
             return GetDbSet<User>().SingleOrDefault(u => u.UserId == userId);

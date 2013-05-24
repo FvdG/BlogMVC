@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Mail;
 using System.Text;
 using System.Web;
@@ -93,8 +91,8 @@ namespace Blog.Web.Controllers
             {
                 using (var client = new SmtpClient())
                 {
-                    var from = new MailAddress("admin@MyBlog.com", "MyBlog Messenger");
-                    var to = new MailAddress("admin@MyBlog.com", "MyBlog Admin");
+                    var from = new MailAddress(AppSettings.EmailAddress, AppSettings.EmailFromText);
+                    var to = new MailAddress(AppSettings.EmailAddress, AppSettings.EmailToText);
 
                     using (var message = new MailMessage(from, to))
                     {

@@ -79,7 +79,7 @@
             columns: [
                 { field: "Username", title: "Username", width: 100 },
                 { field: "RoleId", width: "150px", values: rolesdata, title: "RoleName" },
-                { command: ["edit"/*, "destroy"*/], title: "&nbsp;", width: "40px" }
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "40px" }
             ],
             editable: {
                 mode: "popup"
@@ -151,6 +151,10 @@
                             if (textStatus == 'success') {
                                 refreshTagGrid();
                                 toastr.success('Succes', 'Succesfully deleted User');
+                            } else {
+                                console.log(jqXhr);
+                                console.log(textStatus);
+                                toastr.warning('Warning', "Couldn't delete User");
                             }
                         }
                     },

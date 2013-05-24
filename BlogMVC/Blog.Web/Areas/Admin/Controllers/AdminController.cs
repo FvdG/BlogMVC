@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 using AutoMapper;
@@ -22,7 +19,7 @@ namespace Blog.Web.Areas.Admin.Controllers
 {
     [Authorize]
     [InitializeSimpleMembership]
-    public class AdminController : Controller
+    public class AdminController : BaseController
     {
         private readonly IPostRepository _postRepository;
         private readonly ICategoryRepository _categoryRepository;
@@ -32,6 +29,7 @@ namespace Blog.Web.Areas.Admin.Controllers
 
         public AdminController(IPostRepository postRepository, ICategoryRepository categoryRepository,
             ITagRepository tagRepository, IUserRepository userRepository, IRoleRepository roleRepository)
+            : base(userRepository)
         {
             _postRepository = postRepository;
             _categoryRepository = categoryRepository;
@@ -52,7 +50,7 @@ namespace Blog.Web.Areas.Admin.Controllers
         /// </summary>
         /// <returns>All available categories as JSON</returns>
         [HttpPost]
-        public ActionResult ReadCategories(int take, int skip, IEnumerable<Sort> sort, Blog.Web.Models.Filter filter)
+        public ActionResult ReadCategories(int take, int skip, IEnumerable<Sort> sort, Web.Models.Filter filter)
         {
             var categories = Mapper.Map<Category[], CategoryViewModel[]>(_categoryRepository.Categories().ToArray());
             DataSourceResult result = categories.AsQueryable().ToDataSourceResult(take, skip, sort, filter);
@@ -151,7 +149,7 @@ namespace Blog.Web.Areas.Admin.Controllers
         /// </summary>
         /// <returns>All available tags as JSON</returns>
         [HttpPost]
-        public ActionResult ReadTags(int take, int skip, IEnumerable<Sort> sort, Blog.Web.Models.Filter filter)
+        public ActionResult ReadTags(int take, int skip, IEnumerable<Sort> sort, Web.Models.Filter filter)
         {
             var tags = Mapper.Map<Tag[], TagViewModel[]>(_tagRepository.Tags().ToArray());
             DataSourceResult result = tags.AsQueryable().ToDataSourceResult(take, skip, sort, filter);
@@ -275,7 +273,7 @@ namespace Blog.Web.Areas.Admin.Controllers
         /// </summary>
         /// <returns>All available posts as JSON</returns>
         [HttpPost]
-        public ActionResult ReadPosts(int take, int skip, IEnumerable<Sort> sort, Blog.Web.Models.Filter filter)
+        public ActionResult ReadPosts(int take, int skip, IEnumerable<Sort> sort, Web.Models.Filter filter)
         {
             var posts = Mapper.Map<Post[], PostViewModel[]>(_postRepository.Posts().ToArray());
             DataSourceResult result = posts.AsQueryable().ToDataSourceResult(take, skip, sort, filter);
@@ -455,19 +453,27 @@ namespace Blog.Web.Areas.Admin.Controllers
             {
                 //Get first because at the moment no multiple delete available
                 UserViewModel userViewModel = userViewModels.FirstOrDefault();
-                if (userViewModel != null)
+                if (userViewModel != null && userViewModel.Username != CurrentUser.UserName)
                 {
-                    //Not implemented yet.
-                    //_userRepository.RemoveUser(userViewModel.UserId);
-                    //Return emtpy result
-                    return Json(string.Empty);
+                    //Attempt to delete the user, if not current user
+                    try
+                    {
+                        _userRepository.RemoveUser(userViewModel.UserId);
+                        return Json(new { success = true });
+                    }
+                    catch (MembershipCreateUserException e)
+                    {
+                        ModelState.AddModelError("", ErrorCodeToString(e.StatusCode));
+                        return Json(new { error = ErrorCodeToString(e.StatusCode) });
+                    }
                 }
+                return Json(new { error = "Cannot delete yourself!!" });
             }
             return null;
         }
 
         [HttpPost]
-        public ActionResult ReadUsers(int take, int skip, IEnumerable<Sort> sort, Blog.Web.Models.Filter filter)
+        public ActionResult ReadUsers(int take, int skip, IEnumerable<Sort> sort, Web.Models.Filter filter)
         {
             //var roles = _roleRepository.GetRoles();
             //ViewBag["rolesdata"] = new SelectList(roles, dataValueField: "RoleId", dataTextField: "RoleName");
@@ -490,7 +496,7 @@ namespace Blog.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(LoginModel model, string returnUrl)
         {
-            if (ModelState.IsValid && WebSecurity.Login(model.UserName, model.Password, persistCookie: model.RememberMe))
+            if (ModelState.IsValid && WebSecurity.Login(model.UserName, model.Password, model.RememberMe))
             {
                 return RedirectToUrl(returnUrl);
             }
@@ -643,32 +649,6 @@ namespace Blog.Web.Areas.Admin.Controllers
         {
             return View();
         }
-
-        //
-        // POST: /Account/Register
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Register(RegisterModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        // Attempt to register the user
-        //        try
-        //        {
-        //            WebSecurity.CreateUserAndAccount(model.UserName, model.Password);
-        //            WebSecurity.Login(model.UserName, model.Password);
-        //            return RedirectToAction("Index", "Admin");
-        //        }
-        //        catch (MembershipCreateUserException e)
-        //        {
-        //            ModelState.AddModelError("", ErrorCodeToString(e.StatusCode));
-        //        }
-        //    }
-
-        //    // If we got this far, something failed, redisplay form
-        //    return View(model);
-        //}
 
         public ActionResult Index()
         {
